@@ -25,7 +25,8 @@ namespace Advena.Api.Models
                 Id = user.Id,
                 Name = user.Name,
                 Username = user.Username,
-                City = user.City
+                City = user.City,
+                Comments = (user.Comments.Select(x => Create(x)).ToList()) ?? user.Comments.Select(x => Create(x)).ToList()
             };
         }
 
@@ -51,7 +52,8 @@ namespace Advena.Api.Models
                 Id = article.Id,
                 Title = article.Title,
                 Content = article.Content,
-                Map = article.Map
+                Map = article.Map,
+                Comments = (article.Comments.Select(x => Create(x)).ToList()) ?? article.Comments.Select(x => Create(x)).ToList()
             };
         }
 
@@ -74,10 +76,21 @@ namespace Advena.Api.Models
             {
                 Id = comment.Id,
                 Content = comment.Content,
-                Article = comment.Article.ToString(),
+                Article = comment.Article.Title,
                 ArticleId=comment.Article.Id,
-                User = comment.User.ToString(),
+                User = comment.User.Username,
                 UserId=comment.User.Id
+            };
+        }
+
+        public Comment Create (CommentModel model)
+        {
+            return new Comment()
+            {
+                Id = model.Id,
+                Content = model.Content,
+                User = _unitOfWork.Users.Get(model.UserId),
+                Article = _unitOfWork.Articles.Get(model.ArticleId)
             };
         }
 
